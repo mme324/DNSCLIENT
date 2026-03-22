@@ -1,41 +1,47 @@
 import dns.resolver
 
+# Set the IP address of the local DNS server and a public DNS server
+local_host_ip = '127.0.0.1'
 real_name_server = '1.1.1.1'
 
+# Create a list of domain names to query
 domainList = ['example.com.', 'safebank.com.', 'google.com.', 'nyu.edu.', 'legitsite.com.']
 
 
-# LOCAL → return SINGLE value
+# Query local DNS server
 def query_local_dns_server(domain, question_type):
     resolver = dns.resolver.Resolver()
+    resolver.nameservers = [local_host_ip]
+    
     answers = resolver.resolve(domain, question_type)
-    return answers[0].to_text()
+    ip_address = answers[0].to_text()
+    
+    return ip_address
 
 
-# EXTERNAL → return FULL list
+# Query public DNS server
 def query_dns_server(domain, question_type):
     resolver = dns.resolver.Resolver()
     resolver.nameservers = [real_name_server]
+    
     answers = resolver.resolve(domain, question_type)
-    return [r.to_text() for r in answers]
+    ip_address = answers[0].to_text()
+    
+    return ip_address
 
 
+# Compare results
 def compare_dns_servers(domainList, question_type):
     for domain_name in domainList:
         local_ip_address = query_local_dns_server(domain_name, question_type)
         public_ip_address = query_dns_server(domain_name, question_type)
-
-        # normalize comparison
-        if isinstance(public_ip_address, list):
-            if local_ip_address not in public_ip_address:
-                return False
-        else:
-            if local_ip_address != public_ip_address:
-                return False
-
+        
+        if local_ip_address != public_ip_address:
+            return False
     return True    
 
 
+# Print results
 def local_external_DNS_output(question_type):    
     print("Local DNS Server")
     for domain_name in domainList:
@@ -46,17 +52,23 @@ def local_external_DNS_output(question_type):
     for domain_name in domainList:
         ip_address = query_dns_server(domain_name, question_type)
         print(f"The IP address of {domain_name} is {ip_address}")
-        
 
+
+# Testing hook
 def exfiltrate_info(domain, question_type):
     return query_local_dns_server(domain, question_type)
 
 
 if __name__ == '__main__':
+    
     question_type = 'A'
 
+    # local_external_DNS_output(question_type)
+
     result = compare_dns_servers(domainList, question_type)
-    print("Do both DNS servers match for all domains?", result)
+    print(result)
 
     result = query_local_dns_server('nyu.edu.', question_type)
-    print("Local DNS result for nyu.edu.:", result)
+    print(result)
+
+    # print(exfiltrate_info('google.com.', question_type))
