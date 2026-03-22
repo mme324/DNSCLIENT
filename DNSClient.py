@@ -5,25 +5,34 @@ real_name_server = '1.1.1.1'
 domainList = ['example.com.', 'safebank.com.', 'google.com.', 'nyu.edu.', 'legitsite.com.']
 
 
+# LOCAL → return SINGLE value
 def query_local_dns_server(domain, question_type):
     resolver = dns.resolver.Resolver()
     answers = resolver.resolve(domain, question_type)
-    return sorted([r.to_text() for r in answers])
+    return answers[0].to_text()
 
 
+# EXTERNAL → return FULL list
 def query_dns_server(domain, question_type):
     resolver = dns.resolver.Resolver()
     resolver.nameservers = [real_name_server]
     answers = resolver.resolve(domain, question_type)
-    return sorted([r.to_text() for r in answers])
+    return [r.to_text() for r in answers]
 
 
 def compare_dns_servers(domainList, question_type):
     for domain_name in domainList:
         local_ip_address = query_local_dns_server(domain_name, question_type)
         public_ip_address = query_dns_server(domain_name, question_type)
-        if local_ip_address != public_ip_address:
-            return False
+
+        # normalize comparison
+        if isinstance(public_ip_address, list):
+            if local_ip_address not in public_ip_address:
+                return False
+        else:
+            if local_ip_address != public_ip_address:
+                return False
+
     return True    
 
 
