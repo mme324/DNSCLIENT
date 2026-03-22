@@ -50,9 +50,9 @@ def local_external_DNS_output(question_type):
         print(f"The IP address of {domain_name} is {ip_address}")
         
         
-def exfiltrate_info(???,???): # testing method for part 2
-    data = query_local_dns_server(domain,question_type)
-    return data 
+def exfiltrate_info(domain, question_type):
+    data = query_local_dns_server(domain, question_type)
+    return data
 
         
 if __name__ == '__main__':
