@@ -11,10 +11,8 @@ domainList  = ['example.com.','safebank.com.','google.com.','nyu.edu.','legitsit
 # Define a function to query the local DNS server for the IP address of a given domain name
 def query_local_dns_server(domain,question_type):
     resolver = dns.resolver.Resolver()
-    answers = resolver.resolve(domain, question_type) # provide the domain and question_type
-
-    ip_address = answers[0].to_text()
-    return ip_address   
+    answers = resikver.resolve(domain, question_type)
+    return sorted([r.to_text() for r in answers])
     
 # Define a function to query a public DNS server for the IP address of a given domain name
 def query_dns_server(domain,question_type):
@@ -22,8 +20,7 @@ def query_dns_server(domain,question_type):
     resolver.nameservers = [real_name_server]
     answers = resolver.resolve(domain, question_type) # provide the domain and question_type
 
-    ip_address = answers[0].to_text()
-    return ip_address
+    return sorted([r.to_text() for r in answers])
     
 # Define a function to compare the results from the local and public DNS servers for each domain name in the list
 def compare_dns_servers(domainList,question_type):
